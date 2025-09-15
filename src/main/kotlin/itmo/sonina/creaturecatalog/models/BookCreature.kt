@@ -1,4 +1,4 @@
-package itmo.sonina.bookcreatures.models
+package itmo.sonina.creaturecatalog.models
 
 import jakarta.persistence.*
 import jakarta.validation.constraints.Min

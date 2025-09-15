@@ -1,11 +1,11 @@
-package itmo.sonina.bookcreatures
+package itmo.sonina.creaturecatalog
 
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 
 @SpringBootApplication
-class BookСreaturesApplication
+class CreatureCatalogApplication
 
 fun main(args: Array<String>) {
-    runApplication<BookСreaturesApplication>(*args)
+    runApplication<CreatureCatalogApplication>(*args)
 }

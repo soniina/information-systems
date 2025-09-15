@@ -1,4 +1,4 @@
-package itmo.sonina.bookcreatures.models
+package itmo.sonina.creaturecatalog.models
 
 enum class BookCreatureType {
     HOBBIT,
