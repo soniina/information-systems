@@ -5,6 +5,7 @@ build/
 !**/src/main/**/build/
 !**/src/test/**/build/
 application.properties
+*.http
 
 ### STS ###
 .apt_generated
