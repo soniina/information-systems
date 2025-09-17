@@ -9,6 +9,9 @@ import java.time.ZonedDateTime
 @Repository
 class BookCreatureRepository: CrudRepository<BookCreature>(BookCreature::class.java) {
 
+    override val allowedColumns = setOf("id", "name", "coordinates.x", "coordinates.y", "creationDate", "age",
+        "creatureType", "creatureLocation.name", "creatureLocation.capital", "attackLevel", "ring.name", "ring.power")
+
     fun findWithMinAge(): BookCreature? =
         entityManager.createQuery(
             "SELECT c FROM BookCreature c WHERE c.age = (SELECT MIN(c2.age) FROM BookCreature c2)",
