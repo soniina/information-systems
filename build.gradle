@@ -22,10 +22,13 @@ repositories {
 }
 
 dependencies {
-    implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
     implementation 'org.springframework.boot:spring-boot-starter-web'
-    implementation 'org.springframework:spring-orm:6.2.10'
+    implementation 'org.springframework.data:spring-data-commons'
+    implementation('org.springframework.boot:spring-boot-starter-data-jpa'){
+        exclude group: 'org.hibernate', module: 'hibernate-core'
+        exclude group: 'org.hibernate.common', module: 'common-annotations'
+    }
     implementation 'jakarta.validation:jakarta.validation-api:3.1.1'
     implementation 'org.eclipse.persistence:org.eclipse.persistence.jpa:4.0.6'
     implementation 'com.fasterxml.jackson.module:jackson-module-kotlin'

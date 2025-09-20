@@ -1,7 +1,6 @@
 package itmo.sonina.creaturecatalog.models
 
 import jakarta.persistence.*
-import jakarta.validation.constraints.*
 
 @Entity
 @Table(name = "magic_cities")
@@ -9,17 +8,14 @@ data class MagicCity(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(nullable = false)
-    val id: Int,
+    val id: Int = 0,
 
-    @field:NotBlank
     @Column(nullable = false)
     var name: String,
 
-    @field:Min(1)
     @Column(nullable = false)
     var area: Long,
 
-    @field:Min(1)
     @Column(nullable = false)
     var population: Int,
 
@@ -32,7 +28,6 @@ data class MagicCity(
     @Column(nullable = false)
     var capital: Boolean,
 
-    @field:Min(1)
     @Column(nullable = false)
     var populationDensity: Float
 )

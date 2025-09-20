@@ -15,7 +15,7 @@ abstract class CrudRepository<T : Any>(private val entityClass: Class<T>) {
     @PersistenceContext
     protected lateinit var entityManager: EntityManager
 
-    protected open val allowedColumns: Set<String> = setOf("id")
+    protected val allowedColumns: Set<String> = setOf("id")
 
     fun findById(id: Int): T? = entityManager.find(entityClass, id)
 
@@ -29,20 +29,20 @@ abstract class CrudRepository<T : Any>(private val entityClass: Class<T>) {
     }
 
     fun findPage(pageable: Pageable,
-                 filterColumn: String?,
-                 filterValue: String?,
-                 sortColumn: String?): Page<T> {
+                 filterColumn: String,
+                 filterValue: String,
+                 sortColumn: String): Page<T> {
 
-        if (filterColumn != null && filterColumn !in allowedColumns)
+        if (filterColumn.isBlank() && filterColumn !in allowedColumns)
             throw IllegalArgumentException("Invalid filter column: $filterColumn")
-        if (sortColumn != null && sortColumn !in allowedColumns)
+        if (sortColumn.isBlank() && sortColumn !in allowedColumns)
             throw IllegalArgumentException("Invalid sort column: $sortColumn")
 
         val builder = entityManager.criteriaBuilder
         val mainQuery = builder.createQuery(entityClass)
         val root = mainQuery.from(entityClass)
 
-        if (filterColumn != null && filterValue != null) {
+        if (filterColumn.isBlank() && filterValue.isBlank()) {
             val filterPath = resolvePath(root, filterColumn)
             mainQuery.where(
                 builder.like(
@@ -52,7 +52,7 @@ abstract class CrudRepository<T : Any>(private val entityClass: Class<T>) {
             )
         }
 
-        if (sortColumn != null) {
+        if (sortColumn.isBlank()) {
             val sortPath = resolvePath(root, sortColumn)
             mainQuery.orderBy(builder.asc(sortPath))
         }
@@ -67,7 +67,7 @@ abstract class CrudRepository<T : Any>(private val entityClass: Class<T>) {
         val countQuery = builder.createQuery(Long::class.java)
         val countRoot = countQuery.from(entityClass)
 
-        if (filterColumn != null && filterValue != null) {
+        if (filterColumn.isBlank() && filterValue.isBlank()) {
             val countPath = resolvePath(countRoot, filterColumn)
             countQuery.where(
                 builder.like(
@@ -82,9 +82,15 @@ abstract class CrudRepository<T : Any>(private val entityClass: Class<T>) {
         return PageImpl(content, pageable, total)
     }
 
-    fun save(entity: T) = entityManager.persist(entity)
+    fun save(entity: T): T {
+        entityManager.persist(entity)
+        return entity
+    }
 
-    fun update(entity: T) = entityManager.merge(entity)
+    fun update(entity: T): T {
+        entityManager.merge(entity)
+        return entity
+    }
 
     fun deleteById(id: Int) {
         val entity = findById(id)
