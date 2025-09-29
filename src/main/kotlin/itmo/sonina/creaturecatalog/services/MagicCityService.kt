@@ -6,7 +6,10 @@ import itmo.sonina.creaturecatalog.repositories.MagicCityRepository
 import org.springframework.stereotype.Service
 
 @Service
-class MagicCityService(magicCityRepository: MagicCityRepository): CrudService<MagicCity, MagicCityRequest>(magicCityRepository) {
+class MagicCityService(
+    private val magicCityRepository: MagicCityRepository,
+    cityRepository: MagicCityRepository
+): CrudService<MagicCity, MagicCityRequest>(magicCityRepository) {
 
     override fun toEntity(request: MagicCityRequest) =
         MagicCity(
@@ -42,4 +45,5 @@ class MagicCityService(magicCityRepository: MagicCityRepository): CrudService<Ma
             populationDensity = entity.populationDensity
         )
 
+    fun getByName(name: String): MagicCity? = magicCityRepository.findByName(name)
 }

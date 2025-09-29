@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Special Operations - Book Creatures Catalog</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <link rel="stylesheet" th:href="@{/css/table.css}">
+    <style>
+        .operation-card {
+            margin-bottom: 2rem;
+            border: 1px solid #8d6e63;
+            border-radius: 5px;
+            background: #fff;
+        }
+        .card-header {
+            background-color: #5d4037;
+            border-bottom: 1px solid #5d4037;
+            color: #f5f5f5;
+        }
+        .result-section {
+            background-color: #f8f6f2;
+            border-radius: 5px;
+            padding: 1rem;
+            margin-top: 1rem;
+            border-left: 4px solid #1a8755;
+        }
+        .btn-operation {
+            width: 100%;
+            margin-top: 1rem;
+            background-color: #1a8755;
+            border: 1px solid #006D4C;
+            color: white;
+            font-weight: 600;
+        }
+        .btn-operation:hover {
+            background-color: #006D4C;
+        }
+        .btn-danger-operation {
+            background-color: #db3545;
+            border: 1px solid #8E111D;
+        }
+        .btn-danger-operation:hover {
+            background-color: #8E111D;
+        }
+    </style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm">
+    <div class="container">
+        <a class="navbar-brand" href="/">Book Creatures Catalog</a>
+        <div class="collapse navbar-collapse">
+            <ul class="navbar-nav me-auto menu">
+                <li class="nav-item"><a class="nav-link" href="/creatures">Book Creatures</a></li>
+                <li class="nav-item"><a class="nav-link" href="/coordinates">Coordinates</a></li>
+                <li class="nav-item"><a class="nav-link" href="/cities">Magic Cities</a></li>
+                <li class="nav-item"><a class="nav-link" href="/rings">Rings</a></li>
+            </ul>
+            <ul class="navbar-nav ml-auto menu">
+                <li class="nav-item"><a class="nav-link active" href="/creatures/special">Special Operations</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="container table-container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Special Operations</h2>
+    </div>
+
+    <div class="card operation-card">
+        <div class="card-header">
+            <h5 class="mb-0"><i class="bi bi-search"></i> Find Creature with Minimal Age</h5>
+        </div>
+        <div class="card-body">
+            <p class="card-text">Returns one (any) object with the minimum age field value.</p>
+            <form th:action="@{/creatures/special/min-age}" method="get">
+                <button type="submit" class="btn btn-operation">
+                    <i class="bi bi-play-circle"></i> Execute Operation
+                </button>
+            </form>
+
+            <div th:if="${minAgeResult != null}" class="result-section">
+                <h6 class="text-success">Result:</h6>
+                <div class="alert alert-success">
+                    <div th:if="${minAgeResult}" class="mt-2">
+                        <div class="table-responsive">
+                            <table class="table table-bordered align-middle">
+                                <thead class="table-light">
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Name</th>
+                                    <th>Coordinates</th>
+                                    <th>Creation Date</th>
+                                    <th>Age</th>
+                                    <th>Type</th>
+                                    <th>Location</th>
+                                    <th>Attack Level</th>
+                                    <th>Ring</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr>
+                                    <td th:text="${minAgeResult.id}"></td>
+                                    <td th:text="${minAgeResult.name}"></td>
+                                    <td>
+                                        <a class="highlight-link" th:href="@{/coordinates?highlight={id}(id=${minAgeResult.coordinates.id})}"
+                                           th:text="${'(' + minAgeResult.coordinates.x + ', ' + minAgeResult.coordinates.y + ')'}"></a>
+                                    </td>
+                                    <td th:text="${#temporals.format(minAgeResult.creationDate, 'dd.MM.yyyy HH:mm z')}"></td>
+                                    <td th:text="${minAgeResult.age}"></td>
+                                    <td th:text="${minAgeResult.creatureType}"></td>
+                                    <td>
+                                        <a class="highlight-link" th:href="@{/cities?highlight={id}(id=${minAgeResult.creatureLocation.id})}"
+                                           th:text="${minAgeResult.creatureLocation.name}"></a>
+                                    </td>
+                                    <td th:text="${minAgeResult.attackLevel}"></td>
+                                    <td>
+                                        <a class="highlight-link" th:if="${minAgeResult.ring != null}"
+                                           th:href="@{/rings?highlight={id}(id=${minAgeResult.ring.id})}"
+                                           th:text="${minAgeResult.ring.name}"></a>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div th:unless="${minAgeResult}" class="text-warning">
+                        No creatures found.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card operation-card">
+        <div class="card-header">
+            <h5 class="mb-0"><i class="bi bi-bar-chart"></i> Group by Creation Date</h5>
+        </div>
+        <div class="card-body">
+            <p class="card-text">Groups objects by creationDate field value and returns count of elements in each group.</p>
+            <form th:action="@{/creatures/special/group-by-creation-date}" method="get">
+                <button type="submit" class="btn btn-operation">
+                    <i class="bi bi-play-circle"></i> Execute Operation
+                </button>
+            </form>
+
+            <div th:if="${groupByDateResult != null}" class="result-section">
+                <h6 class="text-success">Result:</h6>
+                <div class="alert alert-success">
+                    <div th:if="${not groupByDateResult.empty}" class="mt-2">
+                        <div class="table-responsive">
+                            <table class="table table-bordered align-middle">
+                                <thead class="table-light">
+                                <tr>
+                                    <th>Creation Date</th>
+                                    <th>Count</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr th:each="entry : ${groupByDateResult}">
+                                    <td th:text="${#temporals.format(entry.key, 'dd.MM.yyyy HH:mm')}"></td>
+                                    <td th:text="${entry.value}"></td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div th:if="${groupByDateResult.empty}" class="text-warning">
+                        No data available for grouping.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card operation-card">
+        <div class="card-header">
+            <h5 class="mb-0"><i class="bi bi-filter"></i> Count Creatures with Ring Power Less Than</h5>
+        </div>
+        <div class="card-body">
+            <p class="card-text">Returns count of objects where ring field value is less than specified value.</p>
+            <form th:action="@{/creatures/special/count-by-ring}" method="get" class="row g-3">
+                <div class="col-md-6">
+                    <label for="ringPower" class="form-label">Ring Power Value:</label>
+                    <input type="number" class="form-control" id="ringPower" name="ringPower"
+                           min="0" required placeholder="Enter ring power">
+                </div>
+                <div class="col-12">
+                    <button type="submit" class="btn btn-operation">
+                        <i class="bi bi-play-circle"></i> Execute Operation
+                    </button>
+                </div>
+            </form>
+
+            <div th:if="${countByRingResult != null}" class="result-section">
+                <h6 class="text-success">Result:</h6>
+                <div class="alert alert-success">
+                    <p class="h4 text-center" th:text="${countByRingResult} + ' creature(s) found'"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card operation-card">
+        <div class="card-header">
+            <h5 class="mb-0"><i class="bi bi-trash"></i> Remove All Rings from Hobbits</h5>
+        </div>
+        <div class="card-body">
+            <p class="card-text">Takes all rings away from hobbits (sets ring field to null for all hobbits).</p>
+            <div class="alert alert-danger">
+                <strong>Warning:</strong> This operation cannot be undone!
+            </div>
+            <form th:action="@{/creatures/special/remove-rings}" method="get"
+                  onsubmit="return confirm('Are you sure you want to remove all rings from hobbits? This action cannot be undone.');">
+                <button type="submit" class="btn btn-operation btn-danger-operation">
+                    <i class="bi bi-exclamation-triangle"></i> Execute Operation
+                </button>
+            </form>
+
+            <div th:if="${removeRingsResult != null}">
+                <div class="alert alert-success mt-3">
+                    <i class="bi bi-check-circle"></i>
+                    <span th:text="${removeRingsResult}"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card operation-card">
+        <div class="card-header">
+            <h5 class="mb-0"><i class="bi bi-geo-alt"></i> Move Hobbits with Rings to Mordor</h5>
+        </div>
+        <div class="card-body">
+            <p class="card-text">Moves all hobbits with rings to Mordor city.</p>
+            <form th:action="@{/creatures/special/move-to-mordor}" method="get"
+                  onsubmit="return confirm('Are you sure you want to move all hobbits with rings to Mordor?');">
+                <div class="row g-3">
+                    <div class="col-12">
+                        <button type="submit" class="btn btn-operation btn-danger-operation">
+                            <i class="bi bi-exclamation-triangle"></i> Execute Operation
+                        </button>
+                    </div>
+                </div>
+            </form>
+
+            <div th:if="${moveToMordorResult != null}">
+                <div th:if="${moveToMordorResultType == 'success'}" class="alert alert-success mt-3">
+                    <i class="bi bi-check-circle"></i>
+                    <span th:text="${moveToMordorResult}"></span>
+                </div>
+                <div th:if="${moveToMordorResultType == 'error'}" class="alert alert-danger mt-3">
+                    <i class="bi bi-exclamation-circle"></i>
+                    <span th:text="${moveToMordorResult}"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

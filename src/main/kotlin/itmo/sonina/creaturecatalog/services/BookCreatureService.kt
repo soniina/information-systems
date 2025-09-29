@@ -8,7 +8,12 @@ import org.springframework.stereotype.Service
 
 
 @Service
-class BookCreatureService(bookCreatureRepository: BookCreatureRepository, private val coordinatesService: CoordinatesService, private val magicCityService: MagicCityService, private val ringService: RingService): CrudService<BookCreature, BookCreatureRequest>(bookCreatureRepository) {
+class BookCreatureService(
+    private val bookCreatureRepository: BookCreatureRepository,
+    private val coordinatesService: CoordinatesService,
+    private val magicCityService: MagicCityService,
+    private val ringService: RingService
+): CrudService<BookCreature, BookCreatureRequest>(bookCreatureRepository) {
 
     private fun getCoordinatesById(id: Int) = coordinatesService.getById(id) ?: throw EntityNotFoundException("Coordinates not found with id: $id")
 
@@ -56,4 +61,15 @@ class BookCreatureService(bookCreatureRepository: BookCreatureRepository, privat
     fun getFreeCoordinates() = coordinatesService.getFree()
     fun getAllCities() = magicCityService.getAll()
     fun getFreeRings() = ringService.getFree()
+
+    fun getWithMinAge() = bookCreatureRepository.findWithMinAge()
+    fun countByCreationDate() = bookCreatureRepository.countByCreationDate()
+    fun countByRingPowerLessThan(value: Int) = bookCreatureRepository.countByRingPowerLessThan(value)
+    fun removeAllRingsFromHobbits() = bookCreatureRepository.removeAllRingsFromHobbits()
+    fun moveHobbitsWithRingsToMordor(): Boolean {
+        val city = magicCityService.getByName("Mordor") ?: return false
+        bookCreatureRepository.moveHobbitsWithRingsToMordor(city)
+        return true
+    }
+
 }
