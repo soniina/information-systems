@@ -1,8 +1,11 @@
 package itmo.sonina.creaturecatalog.repositories
 
+import itmo.sonina.creaturecatalog.models.BookCreatureType
 import jakarta.persistence.EntityManager
 import jakarta.persistence.PersistenceContext
+import jakarta.persistence.criteria.CriteriaBuilder
 import jakarta.persistence.criteria.Path
+import jakarta.persistence.criteria.Predicate
 import jakarta.persistence.criteria.Root
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageImpl
@@ -15,47 +18,64 @@ abstract class CrudRepository<T : Any>(private val entityClass: Class<T>) {
     @PersistenceContext
     protected lateinit var entityManager: EntityManager
 
-    protected val allowedColumns: Set<String> = setOf("id")
+    val allowedColumns: Set<String> = setOf("id")
 
     fun findById(id: Int): T? = entityManager.find(entityClass, id)
 
-    private fun <T> resolvePath(root: Root<T>, pathString: String): Path<String> {
-        val parts = pathString.split(".")
+    private fun <T> resolvePath(root: Root<T>, pathString: String): Path<*> {
         var path: Path<*> = root
-        for (part in parts) {
+        for (part in pathString.split(".")) {
             path = path.get<Any>(part)
         }
-        return path as Path<String>
+        return path
     }
+
+    private fun <T> buildFilterPredicate(builder: CriteriaBuilder, root: Root<T>, filterColumn: String, filterValue: String): Predicate {
+        val filterPath = resolvePath(root, filterColumn)
+        val javaType = filterPath.javaType
+
+        return when {
+            javaType.isEnum -> {
+                val enumValue = runCatching {
+                    BookCreatureType.valueOf(filterValue.trim().uppercase())
+                }.getOrNull()
+                if (enumValue != null) {
+                    builder.equal(filterPath, enumValue)
+                } else {
+                    builder.disjunction()
+                }
+            }
+
+            javaType == String::class.java -> {
+                builder.like(
+                    builder.lower(filterPath.`as`(String::class.java)),
+                    "%${filterValue.trim().lowercase()}%"
+                )
+            }
+
+            else -> {
+                builder.equal(filterPath, filterValue)
+            }
+        }
+    }
+
 
     fun findPage(pageable: Pageable,
                  filterColumn: String,
                  filterValue: String,
                  sortColumn: String): Page<T> {
 
-        if (filterColumn.isBlank() && filterColumn !in allowedColumns)
+        if (filterColumn.isNotBlank() && filterColumn !in allowedColumns)
             throw IllegalArgumentException("Invalid filter column: $filterColumn")
-        if (sortColumn.isBlank() && sortColumn !in allowedColumns)
-            throw IllegalArgumentException("Invalid sort column: $sortColumn")
 
         val builder = entityManager.criteriaBuilder
         val mainQuery = builder.createQuery(entityClass)
         val root = mainQuery.from(entityClass)
 
-        if (filterColumn.isBlank() && filterValue.isBlank()) {
-            val filterPath = resolvePath(root, filterColumn)
-            mainQuery.where(
-                builder.like(
-                    builder.lower(filterPath),
-                    "%${filterValue.lowercase()}%"
-                )
-            )
-        }
+        if (filterColumn.isNotBlank() && filterValue.isNotBlank())
+            mainQuery.where(buildFilterPredicate(builder, root, filterColumn, filterValue))
 
-        if (sortColumn.isBlank()) {
-            val sortPath = resolvePath(root, sortColumn)
-            mainQuery.orderBy(builder.asc(sortPath))
-        }
+        mainQuery.orderBy(builder.asc(resolvePath(root, sortColumn)))
 
         val query = entityManager.createQuery(mainQuery).apply {
             firstResult = pageable.offset.toInt()
@@ -67,19 +87,32 @@ abstract class CrudRepository<T : Any>(private val entityClass: Class<T>) {
         val countQuery = builder.createQuery(Long::class.java)
         val countRoot = countQuery.from(entityClass)
 
-        if (filterColumn.isBlank() && filterValue.isBlank()) {
-            val countPath = resolvePath(countRoot, filterColumn)
-            countQuery.where(
-                builder.like(
-                    builder.lower(countPath),
-                    "%${filterValue.lowercase()}%"
-                )
-            )
-        }
+        if (filterColumn.isNotBlank() && filterValue.isNotBlank())
+            countQuery.where(buildFilterPredicate(builder, countRoot, filterColumn, filterValue))
+
         countQuery.select(builder.count(countRoot))
         val total = entityManager.createQuery(countQuery).singleResult
 
         return PageImpl(content, pageable, total)
+    }
+
+    fun findAllIds(filterColumn: String,
+                   filterValue: String,
+                   sortColumn: String): List<Int> {
+        if (filterColumn.isNotBlank() && filterColumn !in allowedColumns)
+            throw IllegalArgumentException("Invalid filter column: $filterColumn")
+
+        val builder = entityManager.criteriaBuilder
+        val query = builder.createQuery(Int::class.java)
+        val root = query.from(entityClass)
+
+        if (filterColumn.isNotBlank() && filterValue.isNotBlank())
+            query.where(buildFilterPredicate(builder, root, filterColumn, filterValue))
+
+        query.orderBy(builder.asc(resolvePath(root, sortColumn)))
+        query.select(root.get("id"))
+
+        return entityManager.createQuery(query).resultList
     }
 
     fun save(entity: T): T {
@@ -97,5 +130,18 @@ abstract class CrudRepository<T : Any>(private val entityClass: Class<T>) {
         entity?.let {
             entityManager.remove(it)
         }
+    }
+
+    fun findAll(): List<T> =
+        entityManager.createQuery("SELECT e FROM ${entityClass.simpleName} e", entityClass)
+            .resultList
+
+    fun findFree(): List<T> {
+        val fieldName = entityClass.simpleName.replaceFirstChar { it.lowercase() }
+        val query = entityManager.createQuery(
+            "SELECT e FROM ${entityClass.simpleName} e WHERE e.id NOT IN (SELECT b.$fieldName.id FROM BookCreature b WHERE b.$fieldName IS NOT NULL)",
+            entityClass
+        )
+        return query.resultList
     }
 }

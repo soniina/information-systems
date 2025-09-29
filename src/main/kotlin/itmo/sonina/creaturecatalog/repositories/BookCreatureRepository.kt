@@ -9,7 +9,7 @@ import java.time.ZonedDateTime
 @Repository
 class BookCreatureRepository: CrudRepository<BookCreature>(BookCreature::class.java) {
 
-    override val allowedColumns = setOf("id", "name", "coordinates.x", "coordinates.y", "creationDate", "age",
+    override val allowedColumns = setOf("id", "name", "coordinates.x", "coordinates.y", "age",
         "creatureType", "creatureLocation.name", "creatureLocation.capital", "attackLevel", "ring.name", "ring.power")
 
     fun findWithMinAge(): BookCreature? =

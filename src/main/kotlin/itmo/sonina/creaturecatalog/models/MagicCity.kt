@@ -1,6 +1,7 @@
 package itmo.sonina.creaturecatalog.models
 
 import jakarta.persistence.*
+import java.time.LocalDate
 
 @Entity
 @Table(name = "magic_cities")
@@ -8,9 +9,9 @@ data class MagicCity(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(nullable = false)
-    val id: Int = 0,
+    override val id: Int = 0,
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     var name: String,
 
     @Column(nullable = false)
@@ -20,7 +21,7 @@ data class MagicCity(
     var population: Int,
 
     @Column(nullable = false)
-    var establishmentDate: java.util.Date,
+    var establishmentDate: LocalDate,
 
     @Enumerated(EnumType.STRING)
     var governor: BookCreatureType? = null,
@@ -29,5 +30,13 @@ data class MagicCity(
     var capital: Boolean,
 
     @Column(nullable = false)
-    var populationDensity: Float
-)
+    var populationDensity: Float,
+
+    @OneToMany(mappedBy = "creatureLocation", cascade = [CascadeType.ALL], orphanRemoval = true)
+    var bookCreatures: MutableList<BookCreature> = mutableListOf()
+): EntityWithId {
+    override fun equals(other: Any?) =
+        this === other || (other is Coordinates && id == other.id)
+
+    override fun hashCode() = id.hashCode()
+}

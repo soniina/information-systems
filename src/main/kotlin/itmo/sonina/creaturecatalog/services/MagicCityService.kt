@@ -10,23 +10,36 @@ class MagicCityService(magicCityRepository: MagicCityRepository): CrudService<Ma
 
     override fun toEntity(request: MagicCityRequest) =
         MagicCity(
-            name = request.name,
-            area = request.area,
-            population = request.population,
-            establishmentDate = request.establishmentDate,
+            name = requireNotNull(request.name) { "Name is required" },
+            area = requireNotNull(request.area) { "Area is required" },
+            population = requireNotNull(request.population) { "Population is required" },
+            establishmentDate = requireNotNull(request.establishmentDate) { "Establishment date is required" },
             governor = request.governor,
             capital = request.capital,
-            populationDensity = request.populationDensity,
+            populationDensity = requireNotNull(request.populationDensity) { "Population is required" }
         )
 
     override fun updateEntity(entity: MagicCity, request: MagicCityRequest) {
-        entity.name = request.name
-        entity.area = request.area
-        entity.population = request.population
-        entity.establishmentDate = request.establishmentDate
-        entity.governor = request.governor
-        entity.capital = request.capital
-        entity.populationDensity = request.populationDensity
+        entity.apply {
+            request.name?.let { name = it }
+            request.area?.let { area = it }
+            request.population?.let { population = it }
+            request.establishmentDate?.let { establishmentDate = it }
+            governor = request.governor
+            capital = request.capital
+            request.populationDensity?.let { populationDensity = it }
+        }
     }
+
+    override fun toRequest(entity: MagicCity)=
+        MagicCityRequest (
+            name = entity.name,
+            area = entity.area,
+            population = entity.population,
+            establishmentDate = entity.establishmentDate,
+            governor = entity.governor,
+            capital = entity.capital,
+            populationDensity = entity.populationDensity
+        )
 
 }

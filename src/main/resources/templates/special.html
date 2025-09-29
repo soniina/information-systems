@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Special Operations</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css">
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <a class="navbar-brand" href="/static">BookCreatures</a>
+    <div class="collapse navbar-collapse">
+        <ul class="navbar-nav me-auto">
+            <li class="nav-item"><a class="nav-link" href="/creatures">Creatures</a></li>
+            <li class="nav-item"><a class="nav-link" href="/coordinates">Coordinates</a></li>
+            <li class="nav-item"><a class="nav-link" href="/rings">Rings</a></li>
+            <li class="nav-item"><a class="nav-link" href="/magicCities">Magic Cities</a></li>
+            <li class="nav-item"><a class="nav-link active" href="/operations">Special Operations</a></li>
+        </ul>
+    </div>
+</nav>
+<div class="container mt-4">
+    <h2>Special Operations</h2>
+    <div class="row">
+        <!-- Левая колонка: кнопки -->
+        <div class="col-md-4">
+            <div class="mb-3">
+                <form th:action="@{/operations/min-age}" method="get">
+                    <button type="submit" class="btn btn-primary w-100">Return creature with minimal age</button>
+                </form>
+            </div>
+
+            <div class="mb-3">
+                <form th:action="@{/operations/group-by-date}" method="get">
+                    <button type="submit" class="btn btn-primary w-100">Group creatures by creation date</button>
+                </form>
+            </div>
+
+            <div class="mb-3">
+                <form th:action="@{/operations/count-rings}" method="get" class="d-flex">
+                    <input type="number" name="maxPower" placeholder="Max ring power" class="form-control me-2">
+                    <button type="submit" class="btn btn-primary">Count</button>
+                </form>
+            </div>
+
+            <div class="mb-3">
+                <form th:action="@{/operations/take-rings-hobbits}" method="post">
+                    <button type="submit" class="btn btn-warning w-100">Take all rings from hobbits</button>
+                </form>
+            </div>
+
+            <div class="mb-3">
+                <form th:action="@{/operations/move-hobbits-to-mordor}" method="post">
+                    <button type="submit" class="btn btn-warning w-100">Move hobbits with rings to Mordor</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Правая колонка: результат -->
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">Result</div>
+                <div class="card-body">
+                    <div th:if="${result != null}">
+                        <!-- Если результат текст -->
+                        <p th:text="${result}"></p>
+
+                        <!-- Если результат список объектов -->
+                        <table class="table table-bordered" th:if="${creatureList != null}">
+                            <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Age</th>
+                                <th>Type</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="c : ${creatureList}">
+                                <td th:text="${c.id}"></td>
+                                <td th:text="${c.name}"></td>
+                                <td th:text="${c.age}"></td>
+                                <td th:text="${c.creatureType}"></td>
+                            </tr>
+                            </tbody>
+                        </table>
+
+                        <!-- Можно добавить другие таблицы для ring, city и т.д. -->
+                    </div>
+                    <div th:if="${result == null}">
+                        <p>No operation executed yet.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="container mt-4">
+        <h2>Special Operations</h2>
+        <div class="row g-3">
+            <div class="col-md-4" th:each="op : ${operations}">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title" th:text="${op.title}">Operation Title</h5>
+                        <p class="card-text" th:text="${op.description}">Description of the operation</p>
+                        <form th:action="@{${op.url}}" method="post">
+                            <button type="submit" class="btn btn-primary">Execute</button>
+                        </form>
+                    </div>
+                    <div class="card-footer text-muted" th:if="${op.result != null}" th:text="${op.result}"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>Operation</th>
+            <th>Description</th>
+            <th>Params</th>
+            <th>Action</th>
+            <th>Status</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="op : ${operations}">
+            <td th:text="${op.title}">Op Title</td>
+            <td th:text="${op.description}">Op description</td>
+            <td>
+                <input th:if="${op.hasParam}" type="text" th:name="${op.paramName}" class="form-control" placeholder="Value">
+            </td>
+            <td>
+                <form th:action="@{${op.url}}" method="post">
+                    <button type="submit" class="btn btn-sm btn-primary">Execute</button>
+                </form>
+            </td>
+            <td th:text="${op.result}">Status/result</td>
+        </tr>
+        </tbody>
+    </table>
+
+</div>
+
+</body>
+</html>

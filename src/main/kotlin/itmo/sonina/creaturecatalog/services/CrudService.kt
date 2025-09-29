@@ -9,10 +9,12 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
 @Service
-abstract class CrudService<T : Any, in REQ: CrudRequest> (private val crudRepository: CrudRepository<T>) {
+abstract class CrudService<T : Any, REQ: CrudRequest> (private val crudRepository: CrudRepository<T>) {
 
     abstract fun toEntity(request: REQ): T
+    abstract fun toRequest(entity: T): REQ
     abstract fun updateEntity(entity: T, request: REQ)
+
 
     @Transactional
     fun create(request: REQ): T = crudRepository.save(toEntity(request))
@@ -30,6 +32,18 @@ abstract class CrudService<T : Any, in REQ: CrudRequest> (private val crudReposi
     fun getById(id: Int) = crudRepository.findById(id)
 
     fun getObjects(pageable: Pageable, filterColumn: String?, filterValue: String?, sortColumn: String?): Page<T> =
-         crudRepository.findPage(pageable, filterColumn.toString(), filterValue.toString(), sortColumn.toString())
+        crudRepository.findPage(pageable, filterColumn ?: "", filterValue ?: "", sortColumn ?: "id")
+
+    fun getPageForId(id: Int, pageSize: Int, filterColumn: String?, filterValue: String?, sortColumn: String?): Int {
+        val allEntities = crudRepository.findAllIds(filterColumn ?: "", filterValue ?: "", sortColumn ?: "id")
+        val index = allEntities.indexOf(id)
+        return if (index == -1) 0 else index / pageSize
+    }
+
+    fun getAll() = crudRepository.findAll()
+
+    fun getFree() = crudRepository.findFree()
+
+    fun getAllowedColumns(): Set<String> = crudRepository.allowedColumns
 
 }

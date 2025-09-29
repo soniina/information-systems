@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Add Book Creature - Book Creatures Catalog</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <link rel="stylesheet" th:href="@{/css/create.css}">
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm">
+    <div class="container">
+        <a class="navbar-brand" href="/">Book Creatures Catalog</a>
+        <div class="collapse navbar-collapse">
+            <ul class="navbar-nav me-auto menu">
+                <li class="nav-item"><a class="nav-link active" href="/creatures">Book Creatures</a></li>
+                <li class="nav-item"><a class="nav-link" href="/coordinates">Coordinates</a></li>
+                <li class="nav-item"><a class="nav-link" href="/cities">Magic Cities</a></li>
+                <li class="nav-item"><a class="nav-link" href="/rings">Rings</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="form-container">
+                <div class="page-header">
+                    <h2><i class="bi bi-plus-circle"></i> Add New Book Creature</h2>
+                </div>
+
+                <form id="mainForm" th:action="@{/creatures}" method="post" th:object="${entity}">
+                    <div class="mb-3">
+                        <label for="name" class="form-label">Creature Name</label>
+                        <input type="text" class="form-control" id="name" th:field="*{name}"
+                               placeholder="Enter creature name" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="age" class="form-label">Age</label>
+                        <input type="number" class="form-control" id="age" th:field="*{age}"
+                               placeholder="Enter age" min="0" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="attackLevel" class="form-label">Attack Level</label>
+                        <input type="number" class="form-control" id="attackLevel" th:field="*{attackLevel}"
+                               placeholder="Enter attack level" min="1" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="creatureType" class="form-label">Creature Type</label>
+                        <select class="form-select" id="creatureType" th:field="*{creatureType}" required>
+                            <option th:value="null" selected>-- Select Creature Type --</option>
+                            <option th:each="type : ${T(itmo.sonina.creaturecatalog.models.BookCreatureType).values()}"
+                                    th:value="${type}" th:text="${type}"></option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Coordinates</label>
+                        <div class="input-group">
+                            <select class="form-select" th:field="*{coordinatesId}" required>
+                                <option th:value="null" selected>-- Select or Create Coordinates --</option>
+                                <option th:each="coord : ${coordinatesList}"
+                                        th:value="${coord.id}"
+                                        th:text="'(x=' + ${coord.x} + ', y=' + ${coord.y} + ')'">
+                                </option>
+                            </select>
+                            <button type="button" class="btn-create-new btn btn-outline-primary" data-redirect="/coordinates/create?returnTo=/creatures/create">
+                                <i class="bi bi-plus"></i> Create New
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Magic City (Location)</label>
+                        <div class="input-group">
+                            <select class="form-select" th:field="*{creatureLocationId}" required>
+                                <option th:value="null" selected>-- Select or Create City --</option>
+                                <option th:each="city : ${magicCities}"
+                                        th:value="${city.id}" th:text="${city.name}"></option>
+                            </select>
+                            <button type="button" class="btn-create-new btn btn-outline-primary" data-redirect="/cities/create?returnTo=/creatures/create">
+                                <i class="bi bi-plus"></i> Create New
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Ring (optional)</label>
+                        <div class="input-group">
+                            <select class="form-select" th:field="*{ringId}">
+                                <option th:value="null" selected>-- None --</option>
+                                <option th:each="r : ${rings}"
+                                        th:value="${r.id}" th:text="${r.name}"></option>
+                            </select>
+                            <button type="button" class="btn-create-new btn btn-outline-primary" data-redirect="/rings/create?returnTo=/creatures/create">
+                                <i class="bi bi-plus"></i> Create New
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between mt-4">
+                        <a th:href="@{/creatures}" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left"></i> Back
+                        </a>
+                        <button type="submit" class="btn btn-success">
+                            <i class="bi bi-check-circle"></i> Save Creature
+                        </button>
+                    </div>
+                </form>
+
+                <form id="draftForm" th:action="@{/creatures/saveDraft}" method="post">
+                    <input type="hidden" name="name">
+                    <input type="hidden" name="age">
+                    <input type="hidden" name="attackLevel">
+                    <input type="hidden" name="creatureType">
+                    <input type="hidden" name="coordinatesId">
+                    <input type="hidden" name="creatureLocationId">
+                    <input type="hidden" name="ringId">
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.querySelectorAll('.btn-create-new').forEach(button => {
+        button.addEventListener('click', function() {
+            const redirectUrl = this.dataset.redirect;
+            const main = document.getElementById('mainForm');
+            const draft = document.getElementById('draftForm');
+
+            ['name','age','attackLevel','creatureType',
+                'coordinatesId','creatureLocationId','ringId'].forEach(id => {
+                draft.elements[id].value = main.elements[id].value;
+            });
+
+            draft.elements['redirectUrl'].value = redirectUrl;
+
+            draft.submit();
+        });
+    });
+</script>
+</body>
+</html>

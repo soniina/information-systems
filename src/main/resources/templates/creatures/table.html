@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Book Creatures Catalog</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <link rel="stylesheet" th:href="@{/css/table.css}">
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm">
+    <div class="container">
+        <a class="navbar-brand" href="/">Book Creatures Catalog</a>
+        <div class="collapse navbar-collapse">
+            <ul class="navbar-nav me-auto menu">
+                <li class="nav-item"><a class="nav-link active" href="/creatures">Book Creatures</a></li>
+                <li class="nav-item"><a class="nav-link" href="/coordinates">Coordinates</a></li>
+                <li class="nav-item"><a class="nav-link" href="/cities">Magic Cities</a></li>
+                <li class="nav-item"><a class="nav-link" href="/rings">Rings</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+
+<div class="container table-container">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2>Book Creatures</h2>
+        <a href="/creatures/create" class="btn btn-success crud-btn">
+            <i class="bi bi-plus-circle"></i> Add Creature
+        </a>
+    </div>
+
+    <form th:action="@{/creatures}" method="get" class="mb-3 row g-2 align-items-center">
+        <div class="col-auto">
+            <select name="filterColumn" class="form-select">
+                <option value="">Filter column</option>
+                <option th:each="col : ${allowedColumns}" th:value="${col}" th:text="${col}"></option>
+            </select>
+        </div>
+        <div class="col-auto">
+            <input type="text" name="filterValue" placeholder="Filter value" class="form-control">
+        </div>
+        <div class="col-auto">
+            <select name="sortColumn" class="form-select">
+                <option value="">Sort by</option>
+                <option th:each="col : ${allowedColumns}" th:value="${col}" th:text="${col}"></option>
+            </select>
+        </div>
+        <div class="col-auto">
+            <button type="submit" class="btn btn-secondary">Apply</button>
+        </div>
+    </form>
+
+    <div class="table-responsive">
+        <table class="table table-hover table-bordered align-middle">
+            <thead class="table-light">
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Coordinates</th>
+                <th>Creation Date</th>
+                <th>Age</th>
+                <th>Type</th>
+                <th>Location</th>
+                <th>Attack Level</th>
+                <th>Ring</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="creature : ${creatures}">
+                <td th:text="${creature.id}"></td>
+                <td th:text="${creature.name}"></td>
+                <td>
+                    <a class="highlight-link" th:href="@{/coordinates?highlight={id}(id=${creature.coordinates.id})}"
+                       th:text="${'(' + creature.coordinates.x + ', ' + creature.coordinates.y + ')'}"></a>
+                </td>
+                <td th:text="${#temporals.format(creature.creationDate, 'dd.MM.yyyy HH:mm z')}"></td>
+                <td th:text="${creature.age}"></td>
+                <td th:text="${creature.creatureType}"></td>
+                <td>
+                    <a class="highlight-link" th:href="@{/cities?highlight={id}(id=${creature.creatureLocation.id})}"
+                       th:text="${creature.creatureLocation.name}"></a>
+                </td>
+                <td th:text="${creature.attackLevel}"></td>
+                <td>
+                    <a class="highlight-link" th:if="${creature.ring != null}"
+                       th:href="@{/rings?highlight={id}(id=${creature.ring.id})}"
+                       th:text="${creature.ring.name}"></a>
+                </td>
+                <td>
+                    <a th:href="@{/creatures/edit/{id}(id=${creature.id})}" class="btn btn-sm btn-warning crud-btn">
+                        <i class="bi bi-pencil-square"></i> Edit
+                    </a>
+                    <form th:action="@{/creatures/{id}(id=${creature.id})}" method="post" style="display:inline">
+                        <input type="hidden" name="_method" value="delete"/>
+                        <button type="submit" class="btn btn-sm btn-danger crud-btn">
+                            <i class="bi bi-trash"></i> Delete
+                        </button>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <nav th:if="${totalPages > 1}" aria-label="Page navigation">
+        <ul class="pagination justify-content-center">
+            <li class="page-item" th:classappend="${currentPage == 1} ? 'disabled'">
+                <a class="page-link" th:href="@{/creatures(page=${currentPage - 1})}">Previous</a>
+            </li>
+            <li class="page-item" th:each="i : ${#numbers.sequence(1, totalPages)}"
+                th:classappend="${i == currentPage} ? 'active'">
+                <a class="page-link" th:href="@{/creatures(page=${i})}" th:text="${i}"></a>
+            </li>
+            <li class="page-item" th:classappend="${currentPage == totalPages} ? 'disabled'">
+                <a class="page-link" th:href="@{/creatures(page=${currentPage + 1})}">Next</a>
+            </li>
+        </ul>
+    </nav>
+</div>
+</body>
+</html>
+
+
+

@@ -1,8 +1,6 @@
 package itmo.sonina.creaturecatalog.models
 
 import jakarta.persistence.*
-import jakarta.validation.constraints.Min
-import jakarta.validation.constraints.NotBlank
 import java.time.ZonedDateTime
 
 @Entity
@@ -11,7 +9,7 @@ data class BookCreature (
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(nullable = false, updatable = false)
-    val id: Int = 0,
+    override val id: Int = 0,
 
     @Column(nullable = false)
     var name: String,
@@ -40,4 +38,4 @@ data class BookCreature (
     @OneToOne(fetch = FetchType.LAZY, cascade = [CascadeType.ALL])
     @JoinColumn(name = "ring_id")
     var ring: Ring? = null
-)
+): EntityWithId

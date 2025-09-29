@@ -1,0 +1,44 @@
+body {
+    background-image: url('../images/background.jpg');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+}
+
+.table-container {
+    background: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    margin-top: 20px;
+}
+
+.crud-btn i {
+    margin-right: 5px;
+}
+
+.menu a {
+    margin-right: 15px;
+}
+
+.form-control, .form-select {
+    width: 200px;
+}
+
+a.highlight-link {
+    color: #2e7d32;
+    text-decoration: underline;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+a.highlight-link:hover {
+    color: #1b5e20;
+}
+
+a.highlight-link:active {
+    color: #43a047;
+}
+
+

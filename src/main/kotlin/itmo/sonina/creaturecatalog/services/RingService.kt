@@ -10,15 +10,24 @@ class RingService(ringRepository: RingRepository): CrudService<Ring, RingRequest
 
     override fun toEntity(request: RingRequest) =
         Ring(
-            name = request.name,
-            power = request.power,
+            name = requireNotNull(request.name) { "Name is required" },
+            power = requireNotNull(request.power) { "Power is required" },
             weight = request.weight
         )
 
     override fun updateEntity(entity: Ring, request: RingRequest) {
-        entity.name = request.name
-        entity.power = request.power
-        entity.weight = request.weight
+        entity.apply {
+            request.name?.let { name = it }
+            request.power?.let { power = it }
+            weight = request.weight
+        }
     }
+
+    override fun toRequest(entity: Ring) =
+        RingRequest (
+            name = entity.name,
+            power = entity.power,
+            weight = entity.weight
+        )
 
 }

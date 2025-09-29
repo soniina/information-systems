@@ -10,13 +10,21 @@ class CoordinatesService(coordinatesRepository: CoordinatesRepository): CrudServ
 
     override fun toEntity(request: CoordinatesRequest) =
         Coordinates(
-            x = request.x,
-            y = request.y
+            x = requireNotNull(request.x) { "X is required" },
+            y = requireNotNull(request.y) { "Y is required" }
         )
 
     override fun updateEntity(entity: Coordinates, request: CoordinatesRequest) {
-        entity.x = request.x
-        entity.y = request.y
+        entity.apply {
+            x = request.x ?: x
+            y = request.y ?: y
+        }
     }
+
+    override fun toRequest(entity: Coordinates) =
+        CoordinatesRequest(
+            x = entity.x,
+            y = entity.y
+        )
 
 }

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Edit Coordinates - Book Creatures Catalog</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <link rel="stylesheet" th:href="@{/css/create.css}">
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm">
+    <div class="container">
+        <a class="navbar-brand" href="/">Book Creatures Catalog</a>
+        <div class="collapse navbar-collapse">
+            <ul class="navbar-nav me-auto menu">
+                <li class="nav-item"><a class="nav-link" href="/creatures">Book Creatures</a></li>
+                <li class="nav-item"><a class="nav-link active" href="/coordinates">Coordinates</a></li>
+                <li class="nav-item"><a class="nav-link" href="/cities">Magic Cities</a></li>
+                <li class="nav-item"><a class="nav-link" href="/rings">Rings</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="form-container">
+                <div class="page-header">
+                    <h2><i class="bi bi-plus-circle"></i> Add New Coordinates</h2>
+                </div>
+
+                <form th:action="@{/coordinates/{id}(id=${id})}" method="post" th:object="${entity}">
+                    <input type="hidden" name="_method" value="put"/>
+<!--                    <input type="hidden" name="returnTo" th:value="${param.returnTo}">-->
+                    <div class="mb-3">
+                        <label for="x" class="form-label">X</label>
+                        <input type="number" class="form-control" id="x" th:field="*{x}"
+                               placeholder="Enter X coordinate" step="0.01" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="y" class="form-label">Y</label>
+                        <input type="number" class="form-control" id="y" th:field="*{y}"
+                               placeholder="Enter Y coordinate" required>
+                    </div>
+
+                    <div class="d-flex justify-content-between mt-4">
+                        <a th:href="@{/coordinates}" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left"></i> Back
+                        </a>
+                        <button type="submit" class="btn btn-success">
+                            <i class="bi bi-check-circle"></i> Save Coordinates
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

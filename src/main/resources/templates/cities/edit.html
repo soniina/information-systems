@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Edit Magic City - Book Creatures Catalog</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <link rel="stylesheet" th:href="@{/css/create.css}">
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm">
+    <div class="container">
+        <a class="navbar-brand" href="/">Book Creatures Catalog</a>
+        <div class="collapse navbar-collapse">
+            <ul class="navbar-nav me-auto menu">
+                <li class="nav-item"><a class="nav-link" href="/creatures">Book Creatures</a></li>
+                <li class="nav-item"><a class="nav-link" href="/coordinates">Coordinates</a></li>
+                <li class="nav-item"><a class="nav-link active" href="/cities">Magic Cities</a></li>
+                <li class="nav-item"><a class="nav-link" href="/rings">Rings</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="form-container">
+                <div class="page-header">
+                    <h2><i class="bi bi-plus-circle"></i> Add New Magic City</h2>
+                </div>
+
+                <form th:action="@{/cities/{id}(id=${id})}" method="post" th:object="${entity}">
+                    <input type="hidden" name="_method" value="put"/>
+                    <div class="mb-3">
+                        <label for="name" class="form-label">City Name</label>
+                        <input type="text" class="form-control" id="name" th:field="*{name}"
+                               placeholder="Enter city name" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="area" class="form-label">Area (km^2)</label>
+                        <input type="number" class="form-control" id="area" th:field="*{area}"
+                               placeholder="Enter area" min="1" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="population" class="form-label">Population</label>
+                        <input type="number" class="form-control" id="population" th:field="*{population}"
+                               placeholder="Enter population" min="0" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="establishmentDate" class="form-label">Establishment Date</label>
+                        <input type="date" class="form-control" id="establishmentDate"
+                               th:field="*{establishmentDate}" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="governor" class="form-label">Governor (optional)</label>
+                        <select class="form-select" id="governor" th:field="*{governor}">
+                            <option th:value="null" selected>-- None --</option>
+                            <option th:each="type : ${T(itmo.sonina.creaturecatalog.models.BookCreatureType).values()}"
+                                    th:value="${type}" th:text="${type}"></option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="capital" th:field="*{capital}">
+                        <label class="form-check-label" for="capital">Is Capital</label>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="density" class="form-label">Population Density</label>
+                        <input type="number" class="form-control" id="density" th:field="*{populationDensity}"
+                               placeholder="Enter population density" step="0.1" min="0" required>
+                    </div>
+
+                    <div class="d-flex justify-content-between mt-4">
+                        <a th:href="@{/cities}" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left"></i> Back
+                        </a>
+                        <button type="submit" class="btn btn-success">
+                            <i class="bi bi-check-circle"></i> Save City
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
