@@ -32,10 +32,10 @@ abstract class CrudService<T : Any, REQ: CrudRequest> (private val crudRepositor
     fun getById(id: Int) = crudRepository.findById(id)
 
     fun getObjects(pageable: Pageable, filterColumn: String?, filterValue: String?, sortColumn: String?): Page<T> =
-        crudRepository.findPage(pageable, filterColumn ?: "", filterValue ?: "", sortColumn ?: "id")
+        crudRepository.findPage(pageable, filterColumn ?: "", filterValue ?: "", sortColumn?.takeIf { it.isNotBlank() } ?: "id")
 
     fun getPageForId(id: Int, pageSize: Int, filterColumn: String?, filterValue: String?, sortColumn: String?): Int {
-        val allEntities = crudRepository.findAllIds(filterColumn ?: "", filterValue ?: "", sortColumn ?: "id")
+        val allEntities = crudRepository.findAllIds(filterColumn ?: "", filterValue ?: "", sortColumn?.takeIf { it.isNotBlank() } ?: "id")
         val index = allEntities.indexOf(id)
         return if (index == -1) 0 else index / pageSize
     }
