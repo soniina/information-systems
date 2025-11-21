@@ -11,7 +11,7 @@ data class MagicCity(
     @Column(nullable = false)
     override val id: Int = 0,
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false)
     var name: String,
 
     @Column(nullable = false)
@@ -34,7 +34,7 @@ data class MagicCity(
 
     @OneToMany(mappedBy = "creatureLocation", cascade = [CascadeType.ALL], orphanRemoval = true)
     var bookCreatures: MutableList<BookCreature> = mutableListOf()
-): EntityWithId {
+) : EntityWithId {
     override fun equals(other: Any?) =
         this === other || (other is Coordinates && id == other.id)
 

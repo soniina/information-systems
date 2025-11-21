@@ -1,6 +1,8 @@
 package itmo.sonina.creaturecatalog.models
 
 import jakarta.persistence.*
+import org.hibernate.annotations.OnDelete
+import org.hibernate.annotations.OnDeleteAction
 
 @Entity
 @Table(name = "coordinates")
@@ -18,7 +20,7 @@ data class Coordinates(
 
     @OneToOne(mappedBy = "coordinates", orphanRemoval = true)
     var bookCreature: BookCreature? = null
-): EntityWithId {
+) : EntityWithId {
     override fun equals(other: Any?) =
         this === other || (other is Coordinates && id == other.id)
 

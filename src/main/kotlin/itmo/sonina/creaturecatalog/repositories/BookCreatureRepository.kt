@@ -2,16 +2,19 @@ package itmo.sonina.creaturecatalog.repositories
 
 import itmo.sonina.creaturecatalog.models.BookCreature
 import itmo.sonina.creaturecatalog.models.BookCreatureType
+import itmo.sonina.creaturecatalog.models.Coordinates
 import itmo.sonina.creaturecatalog.models.MagicCity
 import org.springframework.stereotype.Repository
 import org.springframework.transaction.annotation.Transactional
 import java.time.ZonedDateTime
 
 @Repository
-class BookCreatureRepository: CrudRepository<BookCreature>(BookCreature::class.java) {
+class BookCreatureRepository : CrudRepository<BookCreature>(BookCreature::class.java) {
 
-    override val allowedColumns = setOf("id", "name", "coordinates.x", "coordinates.y", "age",
-        "creatureType", "creatureLocation.name", "creatureLocation.capital", "attackLevel", "ring.name", "ring.power")
+    override val allowedColumns = setOf(
+        "id", "name", "coordinates.x", "coordinates.y", "age",
+        "creatureType", "creatureLocation.name", "creatureLocation.capital", "attackLevel", "ring.name", "ring.power"
+    )
 
     fun findWithMinAge(): BookCreature? =
         entityManager.createQuery(
@@ -31,14 +34,12 @@ class BookCreatureRepository: CrudRepository<BookCreature>(BookCreature::class.j
             java.lang.Long::class.java
         ).setParameter("value", value).singleResult.toInt()
 
-    @Transactional
     fun removeAllRingsFromHobbits() {
         entityManager.createQuery("UPDATE BookCreature c SET c.ring = NULL WHERE c.creatureType = :hobbitType")
             .setParameter("hobbitType", BookCreatureType.HOBBIT)
             .executeUpdate()
     }
 
-    @Transactional
     fun moveHobbitsWithRingsToMordor(mordor: MagicCity) {
         entityManager.createQuery("UPDATE BookCreature c SET c.creatureLocation = :mordor WHERE c.creatureType = :hobbitType AND c.ring IS NOT NULL")
             .setParameter("mordor", mordor)
@@ -46,4 +47,16 @@ class BookCreatureRepository: CrudRepository<BookCreature>(BookCreature::class.j
             .executeUpdate()
     }
 
+    fun existsByNameAndCreatureTypeAndAgeAndCreatureLocationIdAndAttackLevel(
+        name: String,
+        type: BookCreatureType,
+        age: Long,
+        locationId: Int,
+        attackLevel: Long
+    ): Boolean =
+        entityManager.createQuery(
+            "SELECT COUNT(b) FROM BookCreature b WHERE b.name = :name AND b.creatureType = :type AND b.age = :age AND b.creatureLocation.id = :locationId AND b.attackLevel = :attackLevel",
+            Long::class.java
+        ).setParameter("name", name).setParameter("type", type).setParameter("age", age)
+            .setParameter("locationId", locationId).setParameter("attackLevel", attackLevel).singleResult > 0
 }

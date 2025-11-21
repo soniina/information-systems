@@ -1,18 +1,18 @@
-package itmo.sonina.creaturecatalog.dto.requests
+package itmo.sonina.creaturecatalog.dto.import
 
 import itmo.sonina.creaturecatalog.models.BookCreatureType
+import jakarta.validation.Valid
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotNull
 import jakarta.validation.constraints.Positive
 
-data class BookCreatureRequest(
-    @field:NotNull
+data class BookCreatureImport(
     @field:NotBlank
     val name: String? = null,
 
     @field:NotNull
-    @field:Positive
-    val coordinatesId: Int? = null,
+    @field:Valid
+    val coordinates: CoordinatesImport? = null,
 
     @field:NotNull
     @field:Positive
@@ -22,13 +22,14 @@ data class BookCreatureRequest(
     val creatureType: BookCreatureType? = null,
 
     @field:NotNull
-    @field:Positive
-    val creatureLocationId: Int? = null,
+    @field:Valid
+    val creatureLocation: MagicCityImport? = null,
 
     @field:NotNull
     @field:Positive
     val attackLevel: Long? = null,
 
-    @field:Positive
-    val ringId: Int? = null
-) : CrudRequest
+    @field:NotNull
+    @field:Valid
+    val ring: RingImport? = null
+) : CrudImport

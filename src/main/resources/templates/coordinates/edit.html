@@ -16,6 +16,7 @@
                 <li class="nav-item"><a class="nav-link active" href="/coordinates">Coordinates</a></li>
                 <li class="nav-item"><a class="nav-link" href="/cities">Magic Cities</a></li>
                 <li class="nav-item"><a class="nav-link" href="/rings">Rings</a></li>
+                <li class="nav-item"><a class="nav-link" href="/imports">Import History</a></li>
             </ul>
             <ul class="navbar-nav ml-auto menu">
                 <li class="nav-item"><a class="nav-link" href="/creatures/special">Special Operations</a></li>
@@ -29,12 +30,12 @@
         <div class="col-md-6">
             <div class="form-container">
                 <div class="page-header">
-                    <h2><i class="bi bi-plus-circle"></i> Add New Coordinates</h2>
+                    <h2><i class="bi bi-plus-circle"></i> Edit New Coordinates</h2>
                 </div>
 
                 <form th:action="@{/coordinates/{id}(id=${id})}" method="post" th:object="${entity}">
                     <input type="hidden" name="_method" value="put"/>
-<!--                    <input type="hidden" name="returnTo" th:value="${param.returnTo}">-->
+                    <!--                    <input type="hidden" name="returnTo" th:value="${param.returnTo}">-->
                     <div class="mb-3">
                         <label for="x" class="form-label">X</label>
                         <input type="number" class="form-control" id="x" th:field="*{x}"

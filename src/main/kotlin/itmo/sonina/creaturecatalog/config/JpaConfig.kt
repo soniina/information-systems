@@ -25,9 +25,8 @@ class EclipseLinkJpaConfiguration(
 
     override fun getVendorProperties(dataSource: DataSource): MutableMap<String, Any> {
         val props = mutableMapOf<String, Any>()
-        props[PersistenceUnitProperties.WEAVING] = "static"
         props[PersistenceUnitProperties.LOGGING_LEVEL] = SessionLog.FINE_LABEL
-        props[PersistenceUnitProperties.DDL_GENERATION] = PersistenceUnitProperties.NONE
+        props[PersistenceUnitProperties.DDL_GENERATION] = PersistenceUnitProperties.CREATE_OR_EXTEND
         return props
     }
 }

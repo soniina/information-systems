@@ -16,6 +16,7 @@
                 <li class="nav-item"><a class="nav-link" href="/coordinates">Coordinates</a></li>
                 <li class="nav-item"><a class="nav-link active" href="/cities">Magic Cities</a></li>
                 <li class="nav-item"><a class="nav-link" href="/rings">Rings</a></li>
+                <li class="nav-item"><a class="nav-link" href="/imports">Import History</a></li>
             </ul>
             <ul class="navbar-nav ml-auto menu">
                 <li class="nav-item"><a class="nav-link" href="/creatures/special">Special Operations</a></li>
@@ -29,7 +30,7 @@
         <div class="col-md-8">
             <div class="form-container">
                 <div class="page-header">
-                    <h2><i class="bi bi-plus-circle"></i> Add New Magic City</h2>
+                    <h2><i class="bi bi-plus-circle"></i> Edit New Magic City</h2>
                 </div>
 
                 <form th:action="@{/cities/{id}(id=${id})}" method="post" th:object="${entity}">

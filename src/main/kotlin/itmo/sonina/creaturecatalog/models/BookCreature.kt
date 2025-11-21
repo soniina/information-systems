@@ -5,7 +5,7 @@ import java.time.ZonedDateTime
 
 @Entity
 @Table(name = "book_creatures")
-data class BookCreature (
+data class BookCreature(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(nullable = false, updatable = false)
@@ -38,4 +38,4 @@ data class BookCreature (
     @OneToOne(fetch = FetchType.LAZY, cascade = [CascadeType.ALL])
     @JoinColumn(name = "ring_id")
     var ring: Ring? = null
-): EntityWithId
+) : EntityWithId

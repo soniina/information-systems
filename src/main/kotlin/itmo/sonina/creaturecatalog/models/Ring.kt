@@ -10,7 +10,7 @@ data class Ring(
     @Column(nullable = false)
     override val id: Int = 0,
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false)
     var name: String,
 
     @Column(nullable = false)
@@ -20,7 +20,7 @@ data class Ring(
 
     @OneToOne(mappedBy = "ring", cascade = [CascadeType.ALL])
     var bookCreature: BookCreature? = null
-): EntityWithId {
+) : EntityWithId {
     override fun equals(other: Any?) =
         this === other || (other is Ring && id == other.id)
 

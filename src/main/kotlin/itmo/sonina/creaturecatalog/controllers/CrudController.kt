@@ -1,6 +1,8 @@
 package itmo.sonina.creaturecatalog.controllers
 
+import itmo.sonina.creaturecatalog.dto.import.CrudImport
 import itmo.sonina.creaturecatalog.dto.requests.CrudRequest
+import itmo.sonina.creaturecatalog.exceptions.UniqueConstraintException
 import itmo.sonina.creaturecatalog.models.EntityWithId
 import itmo.sonina.creaturecatalog.services.CrudService
 import jakarta.validation.Valid
@@ -12,25 +14,28 @@ import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
 import org.springframework.web.servlet.mvc.support.RedirectAttributes
 
-abstract class CrudController<T:EntityWithId, REQ: CrudRequest>(private val crudService: CrudService<T, REQ>) {
+abstract class CrudController<T : EntityWithId, REQ : CrudRequest, IMP : CrudImport>(private val crudService: CrudService<T, REQ, IMP>) {
 
     protected abstract val viewName: String
     protected abstract fun createEmptyRequest(): REQ
 
     @GetMapping
-    fun listObjects(@RequestParam(defaultValue = "1") page: Int,
-                    @RequestParam(defaultValue = "6") pageSize: Int,
-                    @RequestParam(required = false) highlight: Int?,
-                    @RequestParam(required = false) filterColumn: String?,
-                    @RequestParam(required = false) filterValue: String?,
-                    @RequestParam(required = false) sortColumn: String?,
-                    model: Model): String {
+    fun listObjects(
+        @RequestParam(defaultValue = "1") page: Int,
+        @RequestParam(defaultValue = "6") pageSize: Int,
+        @RequestParam(required = false) highlight: Int?,
+        @RequestParam(required = false) filterColumn: String?,
+        @RequestParam(required = false) filterValue: String?,
+        @RequestParam(required = false) sortColumn: String?,
+        model: Model
+    ): String {
 
         val actualPage = highlight?.let {
             crudService.getPageForId(it, pageSize, filterColumn, filterValue, sortColumn) + 1
         } ?: page
 
-        val objectsPage = crudService.getObjects(PageRequest.of(actualPage - 1, pageSize), filterColumn, filterValue, sortColumn)
+        val objectsPage =
+            crudService.getObjects(PageRequest.of(actualPage - 1, pageSize), filterColumn, filterValue, sortColumn)
 
         model.addAttribute(viewName, objectsPage.content)
         model.addAttribute("currentPage", actualPage)
@@ -59,21 +64,31 @@ abstract class CrudController<T:EntityWithId, REQ: CrudRequest>(private val crud
     }
 
     @PostMapping
-    fun create(@ModelAttribute("entity") @Valid request: REQ, bindingResult: BindingResult,
-               @RequestParam(required = false) returnTo: String?,
-               redirectAttributes: RedirectAttributes): String {
-        if (bindingResult.hasErrors()) {
+    @ResponseStatus(HttpStatus.CREATED)
+    fun create(
+        @ModelAttribute("entity") @Valid request: REQ, bindingResult: BindingResult,
+        @RequestParam(required = false) returnTo: String?,
+        redirectAttributes: RedirectAttributes
+    ): String {
+        val created = try {
+            crudService.create(request)
+        } catch (e: UniqueConstraintException) {
+            bindingResult.rejectValue(e.field, "error.${e.field}", e.message)
             return "$viewName/create"
         }
-        val created = crudService.create(request)
         if (returnTo.isNullOrBlank()) return "redirect:/$viewName"
         redirectAttributes.addAttribute("${viewName}Id", created.id)
         return "redirect:$returnTo"
     }
 
     @PutMapping("/{id}")
-    fun update(@PathVariable id: Int, @ModelAttribute("entity") @Valid request: REQ, bindingResult: BindingResult): String {
+    fun update(
+        @PathVariable id: Int,
+        @ModelAttribute("entity") @Valid request: REQ,
+        bindingResult: BindingResult
+    ): String {
         if (bindingResult.hasErrors()) {
+            println(bindingResult.allErrors)
             return "$viewName/edit"
         }
         crudService.update(id, request)

@@ -16,6 +16,7 @@
                 <li class="nav-item"><a class="nav-link" href="/coordinates">Coordinates</a></li>
                 <li class="nav-item"><a class="nav-link" href="/cities">Magic Cities</a></li>
                 <li class="nav-item"><a class="nav-link active" href="/rings">Rings</a></li>
+                <li class="nav-item"><a class="nav-link" href="/imports">Import History</a></li>
             </ul>
             <ul class="navbar-nav ml-auto menu">
                 <li class="nav-item"><a class="nav-link" href="/creatures/special">Special Operations</a></li>
@@ -38,6 +39,7 @@
                         <label for="name" class="form-label">Ring Name</label>
                         <input type="text" class="form-control" id="name" th:field="*{name}"
                                placeholder="Enter ring name" required>
+                        <div th:if="${#fields.hasErrors('name')}" class="text-danger" th:errors="*{name}"></div>
                     </div>
 
                     <div class="mb-3">

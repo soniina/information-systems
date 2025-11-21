@@ -1,5 +1,6 @@
 package itmo.sonina.creaturecatalog.controllers
 
+import itmo.sonina.creaturecatalog.dto.import.BookCreatureImport
 import itmo.sonina.creaturecatalog.dto.requests.BookCreatureRequest
 import itmo.sonina.creaturecatalog.models.BookCreature
 import itmo.sonina.creaturecatalog.models.BookCreatureType
@@ -15,7 +16,8 @@ import org.springframework.web.server.ResponseStatusException
 
 @Controller
 @RequestMapping("/creatures")
-class BookCreatureController(private val bookCreatureService: BookCreatureService): CrudController<BookCreature, BookCreatureRequest>(bookCreatureService) {
+class BookCreatureController(private val bookCreatureService: BookCreatureService) :
+    CrudController<BookCreature, BookCreatureRequest, BookCreatureImport>(bookCreatureService) {
     override val viewName = "creatures"
     override fun createEmptyRequest() = BookCreatureRequest()
 
@@ -78,7 +80,8 @@ class BookCreatureController(private val bookCreatureService: BookCreatureServic
 
     @GetMapping("/edit/{id}")
     override fun showEditForm(@PathVariable id: Int, model: Model): String {
-        val entity = bookCreatureService.getById(id) ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Entity not found")
+        val entity =
+            bookCreatureService.getById(id) ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Entity not found")
 
         val request = (RequestContextHolder.getRequestAttributes() as ServletRequestAttributes).request
         val coordinatesId = request.getParameter("coordinatesId")?.toIntOrNull()
@@ -104,11 +107,15 @@ class BookCreatureController(private val bookCreatureService: BookCreatureServic
 
         model.addAttribute("id", id)
         model.addAttribute("entity", creatureRequest)
-        model.addAttribute("coordinatesList",
-            (bookCreatureService.getFreeCoordinates() + listOfNotNull(entity.coordinates)))
+        model.addAttribute(
+            "coordinatesList",
+            (bookCreatureService.getFreeCoordinates() + listOfNotNull(entity.coordinates))
+        )
         model.addAttribute("magicCities", bookCreatureService.getAllCities())
-        model.addAttribute("rings",
-            (bookCreatureService.getFreeRings() + listOfNotNull(entity.ring)))
+        model.addAttribute(
+            "rings",
+            (bookCreatureService.getFreeRings() + listOfNotNull(entity.ring))
+        )
 
         return "$viewName/edit"
     }
