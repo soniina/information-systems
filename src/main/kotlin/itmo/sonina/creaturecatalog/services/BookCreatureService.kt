@@ -6,14 +6,8 @@ import itmo.sonina.creaturecatalog.exceptions.UniqueConstraintException
 import itmo.sonina.creaturecatalog.models.BookCreature
 import itmo.sonina.creaturecatalog.repositories.BookCreatureRepository
 import jakarta.persistence.EntityNotFoundException
-import org.springframework.dao.ConcurrencyFailureException
-import org.springframework.retry.annotation.Backoff
-import org.springframework.retry.annotation.Retryable
 import org.springframework.stereotype.Service
-import org.springframework.transaction.annotation.Isolation
 import org.springframework.transaction.annotation.Transactional
-import java.sql.SQLException
-
 
 @Service
 class BookCreatureService(
@@ -160,12 +154,6 @@ class BookCreatureService(
         return true
     }
 
-    @Transactional(isolation = Isolation.SERIALIZABLE)
-    @Retryable(
-        value = [ConcurrencyFailureException::class, SQLException::class],
-        maxAttempts = 3,
-        backoff = Backoff(delay = 100)
-    )
     fun createAllFromImport(creatures: List<BookCreatureImport>) {
         creatures.forEach {
             createFromImport(it)

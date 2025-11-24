@@ -1,30 +1,29 @@
 package itmo.sonina.creaturecatalog.controllers
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.readValue
-import itmo.sonina.creaturecatalog.dto.import.BookCreatureImport
-import itmo.sonina.creaturecatalog.exceptions.UniqueConstraintException
-import itmo.sonina.creaturecatalog.services.BookCreatureService
+import itmo.sonina.creaturecatalog.services.ImportManager
 import itmo.sonina.creaturecatalog.services.ImportService
-import jakarta.validation.Validator
-import org.springframework.dao.DataAccessException
+import itmo.sonina.creaturecatalog.services.MinioService
+import org.springframework.core.io.InputStreamResource
 import org.springframework.data.domain.PageRequest
+import org.springframework.http.HttpHeaders
+import org.springframework.http.MediaType
+import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.multipart.MultipartFile
 import org.springframework.web.servlet.mvc.support.RedirectAttributes
 
 @Controller
 @RequestMapping("/imports")
 class ImportController(
+    private val importManager: ImportManager,
     private val importService: ImportService,
-    private val bookCreatureService: BookCreatureService,
-    private val objectMapper: ObjectMapper,
-    private val validator: Validator
+    private val minioService: MinioService
 ) {
 
     private val viewName = "imports"
@@ -51,34 +50,19 @@ class ImportController(
             redirectAttributes.addFlashAttribute("error", "File is empty.")
             return "redirect:/imports"
         }
-        val creatures = try {
-            objectMapper.readValue<List<BookCreatureImport>>(file.bytes)
-        } catch (e: Exception) {
-            redirectAttributes.addFlashAttribute("error", "Couldn't read the file: ${e.message}")
-            return "redirect:/imports"
-        }
-
-        val violations = creatures.flatMapIndexed { index, creature ->
-            validator.validate(creature).map { violation ->
-                "Creature at index $index (${creature.name}): ${violation.propertyPath} ${violation.message}"
-            }
-        }
-
-        if (violations.isNotEmpty()) {
-            importService.create(errorMessage = "Validation errors: ${violations.take(1).joinToString()}")
-            return "redirect:/imports"
-        }
-
-        try {
-            bookCreatureService.createAllFromImport(creatures)
-            importService.create(objectAdded = creatures.size)
-        } catch (e: DataAccessException) {
-            importService.create(errorMessage = "Data access error: ${e.message}")
-        } catch (e: UniqueConstraintException) {
-            importService.create(errorMessage = "Violation of uniqueness: ${e.message}")
-        } catch (e: Exception) {
-            importService.create(errorMessage = "Unexpected error: ${e.message}")
-        }
+        importManager.processImportFile(file)
         return "redirect:/imports"
+    }
+
+
+    @GetMapping("/download/{filename}")
+    fun downloadFile(@PathVariable filename: String): ResponseEntity<InputStreamResource> {
+        val fileStream = minioService.downloadFile(filename)
+        val resource = InputStreamResource(fileStream)
+
+        return ResponseEntity.ok()
+            .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"$filename\"")
+            .contentType(MediaType.APPLICATION_JSON)
+            .body(resource)
     }
 }

@@ -23,5 +23,7 @@ data class ImportOperation(
 
     @Lob
     @Column(columnDefinition = "TEXT")
-    val errorMessage: String? = null
+    val errorMessage: String? = null,
+
+    var minioFileName: String? = null
 )

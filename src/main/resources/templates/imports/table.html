@@ -67,6 +67,7 @@
                 <th>Status</th>
                 <th>Objects Imported</th>
                 <th>Error Message</th>
+                <th>Import File</th>
             </tr>
             </thead>
             <tbody>
@@ -79,6 +80,14 @@
                 </td>
                 <td th:text="${import.status.name() == 'SUCCESS' ? import.objectsAdded : 0}"></td>
                 <td th:text="${import.status.name() == 'SUCCESS' ? '-' : import.errorMessage}"></td>
+                <td>
+                    <a th:if="${import.minioFileName != null}"
+                       th:href="@{/imports/download/{file}(file=${import.minioFileName})}"
+                       th:text="${import.minioFileName}"
+                       class="text-decoration-none">
+                    </a>
+                    <span th:if="${import.minioFileName == null}" class="text-muted">-</span>
+                </td>
             </tr>
             </tbody>
         </table>
