@@ -4,6 +4,7 @@ import jakarta.persistence.*
 import java.time.LocalDate
 
 @Entity
+@Cacheable(true)
 @Table(name = "magic_cities")
 data class MagicCity(
     @Id

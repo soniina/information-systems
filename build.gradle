@@ -34,6 +34,8 @@ dependencies {
     implementation 'io.minio:minio:8.5.7'
     implementation 'org.apache.commons:commons-dbcp2'
 
+    implementation("javax.cache:cache-api:1.1.1")
+
     implementation 'jakarta.validation:jakarta.validation-api:3.1.1'
     implementation 'org.eclipse.persistence:org.eclipse.persistence.jpa:4.0.6'
     implementation 'com.fasterxml.jackson.module:jackson-module-kotlin'

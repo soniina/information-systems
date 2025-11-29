@@ -3,6 +3,7 @@ package itmo.sonina.creaturecatalog.models
 import jakarta.persistence.*
 
 @Entity
+@Cacheable(true)
 @Table(name = "rings")
 data class Ring(
     @Id

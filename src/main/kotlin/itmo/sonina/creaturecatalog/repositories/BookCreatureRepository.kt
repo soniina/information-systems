@@ -2,10 +2,8 @@ package itmo.sonina.creaturecatalog.repositories
 
 import itmo.sonina.creaturecatalog.models.BookCreature
 import itmo.sonina.creaturecatalog.models.BookCreatureType
-import itmo.sonina.creaturecatalog.models.Coordinates
 import itmo.sonina.creaturecatalog.models.MagicCity
 import org.springframework.stereotype.Repository
-import org.springframework.transaction.annotation.Transactional
 import java.time.ZonedDateTime
 
 @Repository

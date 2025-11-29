@@ -4,6 +4,7 @@ import jakarta.persistence.*
 import java.time.ZonedDateTime
 
 @Entity
+@Cacheable(true)
 @Table(name = "book_creatures")
 data class BookCreature(
     @Id

@@ -5,6 +5,7 @@ import org.hibernate.annotations.OnDelete
 import org.hibernate.annotations.OnDeleteAction
 
 @Entity
+@Cacheable(true)
 @Table(name = "coordinates")
 data class Coordinates(
     @Id
