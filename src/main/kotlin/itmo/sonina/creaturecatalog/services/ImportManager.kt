@@ -38,6 +38,7 @@ class ImportManager(
 
     fun processImportFile(file: MultipartFile) {
         val minioFileName = UUID.randomUUID().toString() + ".json"
+        val originalName = file.originalFilename ?: ""
 
         try {
             val bytes = file.bytes
@@ -71,14 +72,25 @@ class ImportManager(
                 }
 
                 transactionTemplate.execute {
+
+                    if (originalName.contains("db_fail")) {
+                        throw org.springframework.dao.DataAccessResourceFailureException("Simulated DB Connection Error (Connection refused)")
+                    }
+
                     bookCreatureService.createAllFromImport(creatures)
+
+                    if (originalName.contains("logic_fail")) {
+                        throw RuntimeException("Simulated Business Logic Crash (NullPointerException etc)")
+                    }
                     entityManager.flush()
                     importService.registerSuccess(creatures.size, minioFileName)
                 }
             }
         } catch (e: Exception) {
-            minioService.deleteFile(minioFileName)
-
+            try {
+                minioService.deleteFile(minioFileName)
+            } catch (e: Exception) {
+            }
             importService.registerFailure(
                 when (e) {
                     is ValidationException -> e.message ?: "Validation error"
